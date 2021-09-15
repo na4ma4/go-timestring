@@ -16,10 +16,8 @@ var LongProcess Formatter = LongProcessFormatter{}
 type LongProcessFormatter struct {
 	nospaces     bool
 	nounitspaces bool
+	showmsonsec  bool
 	abbreviated  bool
-
-	_space string
-	_sep   string
 }
 
 // Option returns a Long Process Formatter with the applied options.
@@ -32,6 +30,8 @@ func (a LongProcessFormatter) Option(opts ...FormatterOption) Formatter {
 			a.nounitspaces = true
 		case Abbreviated:
 			a.abbreviated = true
+		case ShowMSOnSeconds:
+			a.showmsonsec = true
 		}
 	}
 
@@ -39,21 +39,10 @@ func (a LongProcessFormatter) Option(opts ...FormatterOption) Formatter {
 }
 
 // String returns a human readable string using the Long Process Formatter.
+//nolint:cyclop
 func (a LongProcessFormatter) String(td time.Duration) string {
 	o := ""
 	d := TimeDurationToDuration(td)
-
-	if a.nospaces {
-		a._space = ""
-	} else {
-		a._space = " "
-	}
-
-	if a.nounitspaces {
-		a._sep = ""
-	} else {
-		a._sep = " "
-	}
 
 	if v, ok := a.days(d); ok {
 		o += v
@@ -69,6 +58,12 @@ func (a LongProcessFormatter) String(td time.Duration) string {
 
 	if v, ok := a.seconds(d); ok {
 		o += v
+	}
+
+	if a.showmsonsec && td.Seconds() < 60 {
+		if v, ok := a.milliseconds(d); ok {
+			o += v
+		}
 	}
 
 	if len(o) == 0 {
@@ -89,16 +84,29 @@ func (a LongProcessFormatter) String(td time.Duration) string {
 // particle takes a unit and the display units and returns either the formatted unit and true or a empty
 // string and false.
 func (a LongProcessFormatter) particle(v int64, unitAbr, unitSingle, unitMultiple string) (string, bool) {
+	var (
+		sp  string
+		sep string
+	)
+
+	if !a.nospaces {
+		sp = " "
+	}
+
+	if !a.nounitspaces {
+		sep = " "
+	}
+
 	if v > 0 {
 		if a.abbreviated {
-			return fmt.Sprintf("%d%s%s", v, unitAbr, a._space), true
+			return fmt.Sprintf("%d%s%s", v, unitAbr, sp), true
 		}
 
 		if v == 1 {
-			return fmt.Sprintf("%d%s%s%s", v, a._sep, unitSingle, a._space), true
+			return fmt.Sprintf("%d%s%s%s", v, sep, unitSingle, sp), true
 		}
 
-		return fmt.Sprintf("%d%s%s%s", v, a._sep, unitMultiple, a._space), true
+		return fmt.Sprintf("%d%s%s%s", v, sep, unitMultiple, sp), true
 	}
 
 	return "", false
@@ -118,4 +126,8 @@ func (a LongProcessFormatter) minutes(d Duration) (string, bool) {
 
 func (a LongProcessFormatter) seconds(d Duration) (string, bool) {
 	return a.particle(d.Seconds, "s", "second", "seconds")
+}
+
+func (a LongProcessFormatter) milliseconds(d Duration) (string, bool) {
+	return a.particle(d.Milliseconds, "ms", "millisecond", "milliseconds")
 }

@@ -1,6 +1,7 @@
 package timestring_test
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -205,6 +206,67 @@ func TestLongProcessAbbreviatedSimpleNoSpacesTable(t *testing.T) {
 
 			if o := ts.LongProcess.Option(ts.Abbreviated, ts.NoSpaces).String(itd); o != tc.ex {
 				t.Errorf("LongProcess.Option(Abbreviated, NoSpaces).String() returned invalid duration(%s): %s", itd.String(), o)
+			}
+		})
+	}
+}
+
+func TestLongProcessOptionTable(t *testing.T) {
+	t.Parallel()
+
+	oa := ts.Abbreviated
+	ons := ts.NoSpaces
+	osm := ts.ShowMSOnSeconds
+
+	tcs := []struct {
+		td   string
+		ex   string
+		opts []ts.FormatterOption
+	}{
+		{"999.9ms", "999ms", []ts.FormatterOption{oa, ons, osm}},
+		{"10s999.9ms", "10s999ms", []ts.FormatterOption{oa, ons, osm}},
+		{"59s999.9ms", "59s999ms", []ts.FormatterOption{oa, ons, osm}},
+		{"60s999.9ms", "1m", []ts.FormatterOption{oa, ons, osm}},
+		{"61s999.9ms", "1m1s", []ts.FormatterOption{oa, ons, osm}},
+		{"999.9ms", "999ms", []ts.FormatterOption{oa, ons, osm}},
+		{"0h0m1s", "1s", []ts.FormatterOption{oa, ons, osm}},
+		{"0h0m10s", "10s", []ts.FormatterOption{oa, ons, osm}},
+		{"0h0m59s", "59s", []ts.FormatterOption{oa, ons, osm}},
+		{"0h0m60s", "1m", []ts.FormatterOption{oa, ons, osm}},
+		{"0h1m2s", "1m2s", []ts.FormatterOption{oa, ons, osm}},
+		{"0h59m59s", "59m59s", []ts.FormatterOption{oa, ons, osm}},
+		{"0h60m59s", "1h59s", []ts.FormatterOption{oa, ons, osm}},
+		{"0h60m59.999999s", "1h59s", []ts.FormatterOption{oa, ons, osm}},
+		{"1h0m0s", "1h", []ts.FormatterOption{oa, ons, osm}},
+		{"1h0m0.001s", "1h", []ts.FormatterOption{oa, ons, osm}},
+		{"12h0m0s", "12h", []ts.FormatterOption{oa, ons, osm}},
+		{"12h0m0.001s", "12h", []ts.FormatterOption{oa, ons, osm}},
+		{"23h0m0s", "23h", []ts.FormatterOption{oa, ons, osm}},
+		{"23h0m0.001s", "23h", []ts.FormatterOption{oa, ons, osm}},
+		{"24h0m0s", "1d", []ts.FormatterOption{oa, ons, osm}},
+		{"24h0m0.001s", "1d", []ts.FormatterOption{oa, ons, osm}},
+		{"25h0m0s", "1d1h", []ts.FormatterOption{oa, ons, osm}},
+		{"25h0m0.001s", "1d1h", []ts.FormatterOption{oa, ons, osm}},
+		{"3000h32m29s", "125d32m29s", []ts.FormatterOption{oa, ons, osm}},
+	}
+	for _, tc := range tcs {
+		tc := tc
+		t.Run(tc.td, func(t *testing.T) {
+			t.Parallel()
+
+			itd, err := time.ParseDuration(tc.td)
+			if err != nil {
+				t.Errorf("unexpected error parsing duration: %s", err)
+
+				return
+			}
+
+			if o := ts.LongProcess.Option(tc.opts...).String(itd); o != tc.ex {
+				t.Errorf("LongProcess.Option(%s).String() returned invalid duration(%s): %s",
+					fmt.Sprintf("%q", tc.opts),
+					itd.String(),
+					o,
+				)
 			}
 		})
 	}

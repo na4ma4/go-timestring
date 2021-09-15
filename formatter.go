@@ -24,4 +24,8 @@ const (
 	// Abbreviated  is a FormatterOption that tells the formatter to abbreviate the units
 	// (eg. "d" instead of "days").
 	Abbreviated
+
+	// ShowMSOnSeconds is a FormatterOption that tells the formatter to show milliseconds when
+	// the value is less than a minute (59 seconds or less).
+	ShowMSOnSeconds
 )
