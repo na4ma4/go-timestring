@@ -2,56 +2,120 @@ package timestring
 
 import (
 	"fmt"
-	"math"
 	"time"
 )
 
-var LongProcess = LongProcessFormatter{}
+// LongProcess is the ready-to-use Long Process Formatter.
+//nolint:gochecknoglobals
+var LongProcess Formatter = LongProcessFormatter{}
 
-type LongProcessFormatter struct{}
+// LongProcessFormatter is a Long Process Formatter.
+//
+// It is a formatter that handles processes that would be considered long running,
+// like displaying the uptime of a server or service.
+type LongProcessFormatter struct {
+	nospaces     bool
+	nounitspaces bool
+	abbreviated  bool
 
+	_space string
+	_sep   string
+}
+
+// Option returns a Long Process Formatter with the applied options.
+func (a LongProcessFormatter) Option(opts ...FormatterOption) Formatter {
+	for _, opt := range opts {
+		switch opt {
+		case NoSpaces:
+			a.nospaces = true
+		case NoUnitSpaces:
+			a.nounitspaces = true
+		case Abbreviated:
+			a.abbreviated = true
+		}
+	}
+
+	return a
+}
+
+// String returns a human readable string using the Long Process Formatter.
 func (a LongProcessFormatter) String(td time.Duration) string {
 	o := ""
-	days := int64(0)
-	hours := int64(math.Trunc(td.Hours()))
-	if hours >= 24 {
-		days = int64(math.Trunc(float64(hours) / 24))
-		hours -= days * 24
+	d := TimeDurationToDuration(td)
+
+	if a.nospaces {
+		a._space = ""
+	} else {
+		a._space = " "
 	}
-	minutes := int64(math.Trunc(math.Mod(td.Minutes(), 60)))
-	seconds := int64(math.Trunc(math.Mod(td.Seconds(), 60)))
-	if days > 0 {
-		if days == 1 {
-			o += fmt.Sprintf("%d day ", days)
-		} else {
-			o += fmt.Sprintf("%d days ", days)
-		}
+
+	if a.nounitspaces {
+		a._sep = ""
+	} else {
+		a._sep = " "
 	}
-	if hours > 0 {
-		if hours == 1 {
-			o += fmt.Sprintf("%d hour ", hours)
-		} else {
-			o += fmt.Sprintf("%d hours ", hours)
-		}
+
+	if v, ok := a.days(d); ok {
+		o += v
 	}
-	if minutes > 0 {
-		if minutes == 1 {
-			o += fmt.Sprintf("%d minute ", minutes)
-		} else {
-			o += fmt.Sprintf("%d minutes ", minutes)
-		}
+
+	if v, ok := a.hours(d); ok {
+		o += v
 	}
-	if seconds > 0 {
-		if seconds == 1 {
-			o += fmt.Sprintf("%d second ", seconds)
-		} else {
-			o += fmt.Sprintf("%d seconds ", seconds)
-		}
+
+	if v, ok := a.minutes(d); ok {
+		o += v
+	}
+
+	if v, ok := a.seconds(d); ok {
+		o += v
 	}
 
 	if len(o) == 0 {
+		if a.abbreviated {
+			return "0s"
+		}
+
 		return "0 seconds"
 	}
 
+	if a.nospaces {
+		return o
+	}
+
 	return o[:len(o)-1]
+}
+
+// particle takes a unit and the display units and returns either the formatted unit and true or a empty
+// string and false.
+func (a LongProcessFormatter) particle(v int64, unitAbr, unitSingle, unitMultiple string) (string, bool) {
+	if v > 0 {
+		if a.abbreviated {
+			return fmt.Sprintf("%d%s%s", v, unitAbr, a._space), true
+		}
+
+		if v == 1 {
+			return fmt.Sprintf("%d%s%s%s", v, a._sep, unitSingle, a._space), true
+		}
+
+		return fmt.Sprintf("%d%s%s%s", v, a._sep, unitMultiple, a._space), true
+	}
+
+	return "", false
+}
+
+func (a LongProcessFormatter) days(d Duration) (string, bool) {
+	return a.particle(d.Days, "d", "day", "days")
+}
+
+func (a LongProcessFormatter) hours(d Duration) (string, bool) {
+	return a.particle(d.Hours, "h", "hour", "hours")
+}
+
+func (a LongProcessFormatter) minutes(d Duration) (string, bool) {
+	return a.particle(d.Minutes, "m", "minute", "minutes")
+}
+
+func (a LongProcessFormatter) seconds(d Duration) (string, bool) {
+	return a.particle(d.Seconds, "s", "second", "seconds")
 }
