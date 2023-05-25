@@ -6,7 +6,8 @@ import (
 )
 
 // LongProcess is the ready-to-use Long Process Formatter.
-//nolint:gochecknoglobals
+//
+//nolint:gochecknoglobals // pre initialised formatter.
 var LongProcess Formatter = LongProcessFormatter{}
 
 // LongProcessFormatter is a Long Process Formatter.
@@ -39,7 +40,6 @@ func (a LongProcessFormatter) Option(opts ...FormatterOption) Formatter {
 }
 
 // String returns a human readable string using the Long Process Formatter.
-//nolint:cyclop
 func (a LongProcessFormatter) String(td time.Duration) string {
 	o := ""
 	d := TimeDurationToDuration(td)
