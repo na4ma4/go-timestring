@@ -7,6 +7,7 @@ import (
 )
 
 // ShortProcess is the ready-to-use Short Process Formatter.
+//
 //nolint:gochecknoglobals // pre initialised formatter.
 var ShortProcess Formatter = ShortProcessFormatter{abbreviated: true}
 
@@ -41,7 +42,8 @@ func (s ShortProcessFormatter) Option(opts ...FormatterOption) Formatter {
 
 // String returns a human readable string using the Short Process Formatter.
 // It always uses abbreviated units and omits zero-value units.
-// Example: "1d 2h 3m 4s", "2h 3m", "4s", "0s"
+//
+// Example: "1d 2h 3m 4s", "2h 3m", "4s", "0s".
 func (s ShortProcessFormatter) String(td time.Duration) string {
 	if td == 0 {
 		if s.nospaces && s.nounitspaces {
@@ -70,13 +72,7 @@ func (s ShortProcessFormatter) String(td time.Duration) string {
 
 	for _, unit := range units {
 		if unit.value > 0 {
-			var part string
-			if s.nounitspaces {
-				part = fmt.Sprintf("%d%s", unit.value, unit.name)
-			} else {
-				part = fmt.Sprintf("%d%s", unit.value, unit.name) // Abbreviated units usually don't have space before unit
-			}
-			parts = append(parts, part)
+			parts = append(parts, fmt.Sprintf("%d%s", unit.value, unit.name))
 		}
 	}
 

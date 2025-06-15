@@ -7,14 +7,14 @@ import (
 	ts "github.com/na4ma4/go-timestring"
 )
 
-func parseDurationForTest(t *testing.T, s string) time.Duration {
-	t.Helper()
-	d, err := time.ParseDuration(s)
-	if err != nil {
-		t.Fatalf("Failed to parse duration '%s': %v", s, err)
-	}
-	return d
-}
+// func parseDurationForTest(t *testing.T, s string) time.Duration {
+// 	t.Helper()
+// 	d, err := time.ParseDuration(s)
+// 	if err != nil {
+// 		t.Fatalf("Failed to parse duration '%s': %v", s, err)
+// 	}
+// 	return d
+// }
 
 func TestShortProcessFormatter_String(t *testing.T) {
 	t.Parallel()
@@ -121,22 +121,21 @@ func TestShortProcessFormatter_String(t *testing.T) {
 			options:  []ts.FormatterOption{ts.NoSpaces},
 			expected: "5s500ms",
 		},
-        {
-            name:     "ShowMSOnSeconds (should have no effect on ShortProcessFormatter)",
-            duration: 5 * time.Second,
-            options:  []ts.FormatterOption{ts.ShowMSOnSeconds},
-            expected: "5s",
-        },
-        {
-            name:     "Abbreviated (already default, should have no effect)",
-            duration: 5 * time.Second,
-            options:  []ts.FormatterOption{ts.Abbreviated},
-            expected: "5s",
-        },
+		{
+			name:     "ShowMSOnSeconds (should have no effect on ShortProcessFormatter)",
+			duration: 5 * time.Second,
+			options:  []ts.FormatterOption{ts.ShowMSOnSeconds},
+			expected: "5s",
+		},
+		{
+			name:     "Abbreviated (already default, should have no effect)",
+			duration: 5 * time.Second,
+			options:  []ts.FormatterOption{ts.Abbreviated},
+			expected: "5s",
+		},
 	}
 
 	for _, tc := range testCases {
-		tc := tc // capture range variable
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			formatter := ts.ShortProcess
@@ -145,7 +144,9 @@ func TestShortProcessFormatter_String(t *testing.T) {
 			}
 			result := formatter.String(tc.duration)
 			if result != tc.expected {
-				t.Errorf("Expected '%s', but got '%s' for duration %v with options %v", tc.expected, result, tc.duration, tc.options)
+				t.Errorf("Expected '%s', but got '%s' for duration %v with options %v",
+					tc.expected, result, tc.duration, tc.options,
+				)
 			}
 		})
 	}
