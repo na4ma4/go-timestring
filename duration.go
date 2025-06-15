@@ -19,7 +19,7 @@ type Duration struct {
 // TimeDurationToDuration converts a time.Duration to the timestring.Duration for easier
 // display of durations.
 //
-//nolint:gomnd // These _are_ magic numbers.
+//nolint:mnd // These _are_ magic numbers.
 func TimeDurationToDuration(td time.Duration) Duration {
 	// d := Duration{}
 	// d.Hours = int64(math.Trunc(td.Hours()))

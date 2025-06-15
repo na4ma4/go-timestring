@@ -19,7 +19,8 @@ func TestLongProcessOptionsCombined(t *testing.T) {
 	}
 
 	if o := ts.LongProcess.Option(ts.NoSpaces, ts.NoUnitSpaces).String(itd); o != "41days16hours32minutes29seconds" {
-		t.Errorf("LongProcess.Option(NoSpaces, NoUnitSpaces).String() returned invalid duration (%s): %s", itd.String(), o)
+		t.Errorf("LongProcess.Option(NoSpaces, NoUnitSpaces).String() returned invalid duration (%s): %s",
+			itd.String(), o)
 	}
 
 	if o := ts.LongProcess.Option(ts.Abbreviated, ts.NoSpaces, ts.NoUnitSpaces).String(itd); o != "41d16h32m29s" {
@@ -92,7 +93,6 @@ func TestLongProcessSimpleTable(t *testing.T) {
 		{"3000h32m29s", "125 days 32 minutes 29 seconds"},
 	}
 	for _, tc := range tcs {
-		tc := tc
 		t.Run(tc.td, func(t *testing.T) {
 			t.Parallel()
 
@@ -139,7 +139,6 @@ func TestLongProcessAbbreviatedSimpleTable(t *testing.T) {
 		{"3000h32m29s", "125d 32m 29s"},
 	}
 	for _, tc := range tcs {
-		tc := tc
 		t.Run(tc.td, func(t *testing.T) {
 			t.Parallel()
 
@@ -186,7 +185,6 @@ func TestLongProcessAbbreviatedSimpleNoSpacesTable(t *testing.T) {
 		{"3000h32m29s", "125d32m29s"},
 	}
 	for _, tc := range tcs {
-		tc := tc
 		t.Run(tc.td, func(t *testing.T) {
 			t.Parallel()
 
@@ -205,7 +203,8 @@ func TestLongProcessAbbreviatedSimpleNoSpacesTable(t *testing.T) {
 			}
 
 			if o := ts.LongProcess.Option(ts.Abbreviated, ts.NoSpaces).String(itd); o != tc.ex {
-				t.Errorf("LongProcess.Option(Abbreviated, NoSpaces).String() returned invalid duration(%s): %s", itd.String(), o)
+				t.Errorf("LongProcess.Option(Abbreviated, NoSpaces).String() returned invalid duration(%s): %s",
+					itd.String(), o)
 			}
 		})
 	}
@@ -250,7 +249,6 @@ func TestLongProcessOptionTable(t *testing.T) {
 		{"3000h32m29s", "125d32m29s", []ts.FormatterOption{oa, ons, osm}},
 	}
 	for _, tc := range tcs {
-		tc := tc
 		t.Run(tc.td, func(t *testing.T) {
 			t.Parallel()
 
