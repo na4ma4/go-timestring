@@ -14,6 +14,8 @@ type Duration struct {
 	Minutes      int64
 	Seconds      int64
 	Milliseconds int64
+	Microseconds int64
+	Nanoseconds  int64
 }
 
 // TimeDurationToDuration converts a time.Duration to the timestring.Duration for easier
@@ -36,5 +38,7 @@ func TimeDurationToDuration(td time.Duration) Duration {
 		Minutes:      int64(math.Trunc(math.Mod(td.Minutes(), 60))),
 		Seconds:      int64(math.Trunc(math.Mod(td.Seconds(), 60))),
 		Milliseconds: int64(math.Trunc(math.Mod(float64(td.Milliseconds()), 1000))),
+		Microseconds: int64(math.Trunc(math.Mod(float64(td.Microseconds()), 1000))),
+		Nanoseconds:  int64(math.Trunc(math.Mod(float64(td.Nanoseconds()), 1000))),
 	}
 }
