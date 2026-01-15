@@ -52,7 +52,7 @@ func main() {
 }
 ```
 
-#### `ShortProcess` (New)
+#### `ShortProcess` and `Absolute` (New)
 
 The `ShortProcess` formatter provides a concise, abbreviated representation of durations. It's suitable for contexts where space is limited, but a clear representation of the duration is still needed.
 
@@ -61,6 +61,8 @@ The `ShortProcess` formatter provides a concise, abbreviated representation of d
 - Omits time units that have a zero value.
 - Includes spaces between different time unit parts (e.g., "1d 2h").
 - For a zero duration or durations that round down to zero for all its units (e.g. <1ms), it displays "0s".
+
+The `Absolute` formatter provides an absolute, precise and concise abbreviated representation of durations. It's suitable where sub-ms times are required.
 
 **Example:**
 
@@ -93,6 +95,12 @@ func main() {
 	duration5 := time.Duration(0)
 	fmt.Println(timestring.ShortProcess.String(duration5))
 	// Output: 0s
+
+	duration6 := 100 * time.Nanosecond
+	fmt.Println(timestring.ShortProcess.String(duration6))
+	// Output: 0s
+	fmt.Println(timestring.Absolute.String(duration6))
+	// Output: 100ns
 }
 ```
 

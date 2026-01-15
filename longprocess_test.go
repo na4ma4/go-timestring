@@ -8,6 +8,14 @@ import (
 	ts "github.com/na4ma4/go-timestring"
 )
 
+// BenchmarkLongProcessFormatter benchmarks the LongProcessFormatter's String method.
+func BenchmarkLongProcessFormatter(b *testing.B) {
+	d := 49*time.Hour + 15*time.Minute + 30*time.Second
+	for range b.N {
+		_ = ts.LongProcess.String(d)
+	}
+}
+
 func TestLongProcessOptionsCombined(t *testing.T) {
 	t.Parallel()
 
@@ -216,6 +224,7 @@ func TestLongProcessOptionTable(t *testing.T) {
 	oa := ts.Abbreviated
 	ons := ts.NoSpaces
 	osm := ts.ShowMSOnSeconds
+	onu := ts.NoUnitSpaces
 
 	tcs := []struct {
 		td   string
@@ -247,6 +256,17 @@ func TestLongProcessOptionTable(t *testing.T) {
 		{"25h0m0s", "1d1h", []ts.FormatterOption{oa, ons, osm}},
 		{"25h0m0.001s", "1d1h", []ts.FormatterOption{oa, ons, osm}},
 		{"3000h32m29s", "125d32m29s", []ts.FormatterOption{oa, ons, osm}},
+		{"0s", "0s", []ts.FormatterOption{oa, ons, osm}},
+		{"0s", "0 seconds", []ts.FormatterOption{ons, osm}},
+		{"0s", "0 seconds", []ts.FormatterOption{osm}},
+		{"0s", "0s", []ts.FormatterOption{oa, osm}},
+		{"0s", "0s", []ts.FormatterOption{oa, ons}},
+		{"0s", "0s", []ts.FormatterOption{oa}},
+		{"0s", "0 seconds", []ts.FormatterOption{ons}},
+		{"0s", "0 seconds", []ts.FormatterOption{}},
+		{"0s", "0seconds", []ts.FormatterOption{onu}},
+		{"3000h32m29s", "125 days 32 minutes 29 seconds", []ts.FormatterOption{}},
+		{"3000h32m29s", "125days32minutes29seconds", []ts.FormatterOption{ons, onu}},
 	}
 	for _, tc := range tcs {
 		t.Run(tc.td, func(t *testing.T) {
@@ -260,9 +280,10 @@ func TestLongProcessOptionTable(t *testing.T) {
 			}
 
 			if o := ts.LongProcess.Option(tc.opts...).String(itd); o != tc.ex {
-				t.Errorf("LongProcess.Option(%s).String() returned invalid duration(%s): %s",
+				t.Errorf("LongProcess.Option(%s).String() returned invalid duration(%s): expected(%s) got(%s)",
 					fmt.Sprintf("%q", tc.opts),
 					itd.String(),
+					tc.ex,
 					o,
 				)
 			}

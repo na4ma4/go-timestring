@@ -1,5 +1,7 @@
 package timestring
 
+import "strconv"
+
 type globalTimeUnit struct {
 	nameSingular  string
 	namePlural    string
@@ -52,20 +54,26 @@ func (gtu globalTimeUnit) GetNameAbbrev() string {
 //
 //nolint:gochecknoglobals // These are constants for time units, not global state.
 var (
-	day = globalTimeUnit{
+	unitDay = globalTimeUnit{
 		nameSingular: "day", namePlural: "days", nameAbbrev: "d",
 	}
-	hour = globalTimeUnit{
+	unitHour = globalTimeUnit{
 		nameSingular: "hour", namePlural: "hours", nameAbbrev: "h",
 	}
-	minute = globalTimeUnit{
+	unitMinute = globalTimeUnit{
 		nameSingular: "minute", namePlural: "minutes", nameAbbrev: "m",
 	}
-	second = globalTimeUnit{
+	unitSecond = globalTimeUnit{
 		nameSingular: "second", namePlural: "seconds", nameAbbrev: "s", showZero: true,
 	}
-	millisecond = globalTimeUnit{
+	unitMillisecond = globalTimeUnit{
 		nameSingular: "millisecond", namePlural: "milliseconds", nameAbbrev: "ms", onlyIfSeconds: true, showZero: true,
+	}
+	unitMicrosecond = globalTimeUnit{
+		nameSingular: "microsecond", namePlural: "microseconds", nameAbbrev: "µs", onlyIfSeconds: true, showZero: true,
+	}
+	unitNanosecond = globalTimeUnit{
+		nameSingular: "nanosecond", namePlural: "nanoseconds", nameAbbrev: "ns", onlyIfSeconds: true, showZero: true,
 	}
 )
 
@@ -73,6 +81,11 @@ var (
 type timeUnit struct {
 	value int64
 	unit  globalTimeUnit // Reference to the global time unit definition
+}
+
+// IsGlobalUnit checks if the timeUnit corresponds to the given globalTimeUnit.
+func (tu timeUnit) IsGlobalUnit(gtu globalTimeUnit) bool {
+	return tu.unit == gtu
 }
 
 // IsOnlyIfSeconds returns true if this time unit should only be shown if the total duration is less than 60 seconds.
@@ -98,4 +111,22 @@ func (tu timeUnit) GetNamePlural() string {
 // GetNameAbbrev returns the abbreviated name of the time unit.
 func (tu timeUnit) GetNameAbbrev() string {
 	return tu.unit.GetNameAbbrev()
+}
+
+// String returns the string representation of the time unit based on the formatting options.
+func (tu timeUnit) String(abbreviated, spaces bool) string {
+	if abbreviated {
+		return strconv.FormatInt(tu.value, 10) + tu.GetNameAbbrev()
+	}
+	if tu.value == 1 && spaces {
+		return strconv.FormatInt(tu.value, 10) + " " + tu.GetNameSingular()
+	}
+	if tu.value == 1 && !spaces {
+		return strconv.FormatInt(tu.value, 10) + tu.GetNameSingular()
+	}
+	if !spaces {
+		return strconv.FormatInt(tu.value, 10) + tu.GetNamePlural()
+	}
+
+	return strconv.FormatInt(tu.value, 10) + " " + tu.GetNamePlural()
 }

@@ -6,24 +6,24 @@ import (
 	"time"
 )
 
-// ShortProcess is the ready-to-use Short Process Formatter.
+// Absolute is the ready-to-use Absolute Formatter.
 //
 //nolint:gochecknoglobals // pre initialised formatter.
-var ShortProcess Formatter = ShortProcessFormatter{abbreviated: true}
+var Absolute Formatter = AbsoluteFormatter{abbreviated: true}
 
-// ShortProcessFormatter is a Short Process Formatter.
-// It provides a concise representation of time.Duration,
+// AbsoluteFormatter is a Absolute Formatter.
+// It provides a concise and precise representation of time.Duration,
 // always using abbreviated units and omitting zero-value units.
-type ShortProcessFormatter struct {
+type AbsoluteFormatter struct {
 	nospaces     bool
 	nounitspaces bool
-	abbreviated  bool // Always true for ShortProcessFormatter, but kept for interface compatibility
+	abbreviated  bool // Always true for AbsoluteFormatter, but kept for interface compatibility
 }
 
-// Option returns a Short Process Formatter with the applied options.
-// For ShortProcessFormatter, Abbreviated is always true.
+// Option returns a Absolute Formatter with the applied options.
+// For AbsoluteFormatter, Abbreviated is always true.
 // ShowMSOnSeconds is not applicable.
-func (s ShortProcessFormatter) Option(opts ...FormatterOption) Formatter {
+func (s AbsoluteFormatter) Option(opts ...FormatterOption) Formatter {
 	s.abbreviated = true // Ensure abbreviated is always true
 	for _, opt := range opts {
 		switch opt {
@@ -34,26 +34,19 @@ func (s ShortProcessFormatter) Option(opts ...FormatterOption) Formatter {
 		case Abbreviated:
 			// Already true, do nothing
 		case ShowMSOnSeconds:
-			// Not applicable for ShortProcessFormatter
+			// Not applicable for AbsoluteFormatter
 		}
 	}
 	return s
 }
 
-// String returns a human readable string using the Short Process Formatter.
+// String returns a human readable string using the Absolute Formatter.
 // It always uses abbreviated units and omits zero-value units.
 //
 // Example: "1d 2h 3m 4s", "2h 3m", "4s", "0s".
-func (s ShortProcessFormatter) String(td time.Duration) string {
+func (s AbsoluteFormatter) String(td time.Duration) string {
 	if td == 0 {
-		if s.nospaces && s.nounitspaces {
-			return "0s"
-		}
-		if s.nospaces { // implies not nounitspaces
-			return "0s"
-		}
-		// default
-		return "0s" // Short process usually returns 0s even with spaces.
+		return "0s" // Absolute formatter usually returns 0s even with spaces.
 	}
 
 	d := TimeDurationToDuration(td)
@@ -63,6 +56,8 @@ func (s ShortProcessFormatter) String(td time.Duration) string {
 		unitMinute.toTimeUnit(d.Minutes),
 		unitSecond.toTimeUnit(d.Seconds),
 		unitMillisecond.toTimeUnit(d.Milliseconds),
+		unitMicrosecond.toTimeUnit(d.Microseconds),
+		unitNanosecond.toTimeUnit(d.Nanoseconds),
 	}
 	sb := &strings.Builder{}
 

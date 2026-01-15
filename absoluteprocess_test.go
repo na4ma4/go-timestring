@@ -16,15 +16,15 @@ import (
 // 	return d
 // }
 
-// BenchmarkShortProcessFormatter benchmarks the ShortProcessFormatter's String method.
-func BenchmarkShortProcessFormatter(b *testing.B) {
+// BenchmarkAbsoluteFormatter benchmarks the AbsoluteFormatter's String method.
+func BenchmarkAbsoluteFormatter(b *testing.B) {
 	d := 49*time.Hour + 15*time.Minute + 30*time.Second
 	for range b.N {
-		_ = ts.ShortProcess.String(d)
+		_ = ts.Absolute.String(d)
 	}
 }
 
-func TestShortProcessFormatter_String(t *testing.T) {
+func TestAbsoluteFormatter_String(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
@@ -79,6 +79,11 @@ func TestShortProcessFormatter_String(t *testing.T) {
 			expected: "3d",
 		},
 		{
+			name:     "Days plus ns",
+			duration: 3*24*time.Hour + 100*time.Nanosecond, // 3 days plus 100ns
+			expected: "3d 100ns",
+		},
+		{
 			name:     "Days and hours",
 			duration: (3*24*time.Hour + 2*time.Hour), // 3 days 2 hours
 			expected: "3d 2h",
@@ -94,10 +99,16 @@ func TestShortProcessFormatter_String(t *testing.T) {
 			expected: "1d 2h 3m 4s 5ms",
 		},
 		{
-			name:     "Less than 1ms but non-zero",
-			duration: 100 * time.Nanosecond, // Should result in 0 for all units, defaulting to "0s"
-			expected: "0s",
+			name:     "Less than 1µs but non-zero",
+			duration: 100 * time.Nanosecond,
+			expected: "100ns",
 		},
+		{
+			name:     "Less than 1ms but non-zero",
+			duration: 100 * time.Microsecond,
+			expected: "100µs",
+		},
+
 		// --- Options ---
 		{
 			name:     "NoSpaces option",
@@ -130,7 +141,7 @@ func TestShortProcessFormatter_String(t *testing.T) {
 			expected: "5s500ms",
 		},
 		{
-			name:     "ShowMSOnSeconds (should have no effect on ShortProcessFormatter)",
+			name:     "ShowMSOnSeconds (should have no effect on AbsoluteFormatter)",
 			duration: 5 * time.Second,
 			options:  []ts.FormatterOption{ts.ShowMSOnSeconds},
 			expected: "5s",
@@ -146,7 +157,7 @@ func TestShortProcessFormatter_String(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			formatter := ts.ShortProcess
+			formatter := ts.Absolute
 			if len(tc.options) > 0 {
 				formatter = formatter.Option(tc.options...)
 			}
