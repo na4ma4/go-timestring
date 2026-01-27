@@ -1,6 +1,6 @@
 module github.com/na4ma4/go-timestring/magefiles
 
-go 1.22
+go 1.24.1
 
 require (
 	github.com/dosquad/mage v0.3.4
@@ -11,7 +11,7 @@ require (
 	github.com/VividCortex/ewma v1.2.0 // indirect
 	github.com/cheggaaa/pb/v3 v3.1.7 // indirect
 	github.com/clipperhouse/stringish v0.1.1 // indirect
-	github.com/clipperhouse/uax29/v2 v2.3.0 // indirect
+	github.com/clipperhouse/uax29/v2 v2.4.0 // indirect
 	github.com/dosquad/go-cliversion v0.3.0 // indirect
 	github.com/dosquad/go-giturl v0.1.1 // indirect
 	github.com/fatih/color v1.18.0 // indirect
