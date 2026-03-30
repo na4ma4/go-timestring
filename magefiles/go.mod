@@ -1,6 +1,6 @@
 module github.com/na4ma4/go-timestring/magefiles
 
-go 1.24.1
+go 1.25.0
 
 require (
 	github.com/dosquad/mage v0.3.4
